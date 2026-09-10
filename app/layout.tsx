@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
-import { Anton, Inter } from "next/font/google";
+import { Big_Shoulders, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 
-const anton = Anton({
-  weight: "400",
+const bigShoulders = Big_Shoulders({
+  weight: ["600", "900"],
   subsets: ["latin"],
-  variable: "--font-anton",
+  variable: "--font-big-shoulders",
   display: "swap",
 });
 
-const inter = Inter({
+const bricolageGrotesque = Bricolage_Grotesque({
+  weight: ["400", "600"],
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-bricolage",
   display: "swap",
 });
 
@@ -35,7 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${anton.variable} ${inter.variable} h-full`}
+      className={`${bigShoulders.variable} ${bricolageGrotesque.variable} h-full scroll-smooth`}
     >
       <body className="h-full">{children}</body>
     </html>

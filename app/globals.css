@@ -1,14 +1,109 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-brand-dark: #002413;
-  --color-brand-accent: #00ff87;
-  --font-heading: var(--font-anton), sans-serif;
-  --font-body: var(--font-inter), sans-serif;
+  --color-primary-orange: #ff6a00;
+  --font-heading: var(--font-big-shoulders), sans-serif;
+  --font-body: var(--font-bricolage), sans-serif;
+
+  /* Match the Figma breakpoints exactly: mobile (default) / tablet (768) / desktop (1320) */
+  --breakpoint-tablet: 768px;
+  --breakpoint-desktop: 1320px;
+
+  --animate-ticker-slide-in: ticker-slide-in 0.6s ease-out forwards;
+  --animate-ticker-slide-out: ticker-slide-out 0.6s ease-out forwards;
+}
+
+/*
+ * Vertical word rotator (hero strapline). Ported from CodyHouse's
+ * animated-headlines "slide" style (codyhouse.co/demo/animated-headlines)
+ * — each word slides/fades in or out independently rather than a shared
+ * column sweeping past a clipping window. `forwards` holds each
+ * animation's end state (fully in, or fully hidden) instead of snapping
+ * back once it finishes; RotatingWord.tsx toggles which word gets which
+ * class.
+ *
+ * CodyHouse's original has a 60% keyframe that overshoots past the
+ * resting position (translateY(20%) / translateY(120%)) before settling
+ * back — that's the inertia/bounce. Deliberately left out here: each
+ * keyframe below goes straight from its start state to its end state.
+ */
+@keyframes ticker-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes ticker-slide-out {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
 }
 
 body {
   font-family: var(--font-body);
-  background: #000000;
-  color: #ffffff;
+  background: #ffffff;
+  color: #000000;
+}
+
+/*
+ * Viewport scaling.
+ *
+ * < 768px:            no scale — structural/mobile CSS owns this range.
+ * 768px – 1500px:     no scale — fluid reflow only (percentages, flex/grid,
+ *                     clamp()), body renders at 1:1.
+ * > 1500px:           the whole body scales up uniformly with viewport
+ *                     width, uncapped. 1500px is the 1x reference point,
+ *                     so scaling picks up exactly where the fluid zone
+ *                     ends. `zoom` (not `transform: scale`) is used so the
+ *                     layout box scales with it instead of clipping.
+ *
+ * The ambient factor is exposed as --page-zoom (not just set directly as
+ * body's zoom value) so a descendant that needs to ignore this rule
+ * entirely — e.g. the hero strapline, which always scales continuously —
+ * can divide its own zoom by it. Nested `zoom` values compound, so without
+ * that cancellation an always-scaling child inside this body would scale
+ * twice.
+ *
+ * body's own `width` has to switch at the same breakpoint, not just stay
+ * 100%: below 1500px zoom is 1, so width:100% (= 100vw) is correct as-is.
+ * At/above 1500px, width:100% would resolve against the viewport *before*
+ * zoom is applied and then get multiplied by zoom on top of that —
+ * rendering wider than the viewport instead of filling it. A fixed
+ * 1500px width sidesteps that: 1500px × (100vw / 1500px) reduces to
+ * exactly 100vw, however large the viewport gets.
+ *
+ * Anything that must opt out of the flat zone only should set its own
+ * `zoom: 1`.
+ */
+:root {
+  --page-zoom: 1;
+  /* Header's own rendered height (see Header.tsx, which reads this same
+     variable) — Hero's full-viewport-height math needs it as a plain
+     number to subtract, so it's a shared variable instead of a "73px"
+     duplicated in two files that could silently drift apart. */
+  --header-height: 73px;
+}
+
+body {
+  width: 100%;
+  zoom: var(--page-zoom);
+}
+
+@media (min-width: 1500px) {
+  :root {
+    --page-zoom: calc(100vw / 1500px);
+  }
+
+  body {
+    width: 1500px;
+  }
 }
