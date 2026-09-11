@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
   CpdIcon,
   EndorsementsIcon,
@@ -39,6 +40,30 @@ function Hero() {
       className="relative flex w-full items-center justify-center"
       style={{ minHeight: "calc((100vh / var(--page-zoom)) - var(--header-height))" }}
     >
+      {/* Below 768px the animation is replaced outright by a one-time mask
+          reveal on load — no zoom, no rotation, no looping. This sits
+          outside the zoomed div below on purpose: nesting it inside would
+          drag in the same always-scaling behaviour the animated version
+          deliberately opts into. Each of the six lines gets its own
+          overflow-hidden mask (see the `reveal` keyframe in globals.css),
+          but the delay is grouped in pairs, not stepped per line — "Your"
+          and its word reveal together, then the next pair, cascading
+          top to bottom, while staying visually stacked as six lines. */}
+      <div className="hidden max-tablet:flex flex-col items-center text-center">
+        {["Your", "Game,", "Your", "Career,", "Your", "Move."].map((line, i) => (
+          <div key={i} className="overflow-hidden">
+            <p
+              className={`animate-reveal font-heading text-[85px] uppercase leading-[0.95] ${
+                i % 2 === 0 ? "font-semibold text-black" : "font-black text-primary-orange"
+              }`}
+              style={{ transform: "translateY(100%)", animationDelay: `${Math.floor(i / 2) * 0.6}s` }}
+            >
+              {line}
+            </p>
+          </div>
+        ))}
+      </div>
+
       {/* Unlike the rest of the page, the strapline always scales with
           viewport width — it ignores the flat 768–1500px zone globals.css
           applies to `body`. It's still nested inside that scaled body
@@ -47,7 +72,7 @@ function Hero() {
           continuous 100vw/1320px formula (1320 matches
           --breakpoint-desktop, the design's reference width). */}
       <div
-        className="flex items-center justify-center gap-[10px]"
+        className="flex items-center justify-center gap-[10px] max-tablet:hidden"
         style={{ zoom: "calc((100vw / 1320px) / var(--page-zoom))" }}
       >
         <span className="flex h-[194px] items-center justify-end text-right font-heading text-[200px] font-semibold uppercase leading-[40px] text-black">
@@ -94,15 +119,30 @@ function AboutSection() {
           the football landscape.
         </p>
       </div>
-      <div className="relative h-[756px] w-1/2 max-[850px]:w-full">
+      <div className="relative h-[756px] max-tablet:h-auto w-1/2 max-[850px]:w-full">
         {/* Decorative app-in-use clip, not instructional content — no
             controls, no autoplay/loop. Cursor position over it maps
             directly onto the timeline (see HoverScrubVideo): the left
             edge is always the clip's start, the right edge always its
-            last frame. Page scroll has no effect on it. */}
+            last frame. Page scroll has no effect on it. Below 768px the
+            hover-scrub interaction doesn't make sense (no cursor on
+            touch), so it's replaced outright by a static image instead
+            of just disabling the interaction. */}
         <HoverScrubVideo
           src="/video/app_sample.mp4"
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover max-tablet:hidden"
+        />
+        {/* Not `fill` here — this image sizes itself (100% of its column,
+            capped at 500px, natural aspect ratio) rather than being force-
+            cropped into the video's fixed 756px-tall box, so the parent's
+            height is let go back to auto at this breakpoint too (above). */}
+        <Image
+          src="/images/phone-app-screen.png"
+          alt="The Tranxfer Market app's profile selection screen, shown on a tilted phone in front of an orange stripe"
+          width={1000}
+          height={1512}
+          sizes="(max-width: 500px) 100vw, 500px"
+          className="hidden max-tablet:block h-auto w-full max-w-[500px] mx-auto"
         />
       </div>
     </section>
