@@ -98,7 +98,16 @@ function Ticker({ lineHeight, className }: { lineHeight: number; className?: str
       // constant (`lineHeight`), so comparing it to the wrapper's actual
       // rendered height gives the current zoom, whatever it is, without
       // this component needing to know Hero's zoom formula at all.
-      const zoomFactor = wrapper.getBoundingClientRect().height / lineHeight;
+      //
+      // This component can be mounted but CSS-hidden (Hero hides it below
+      // 768px in favour of static text) — an ancestor with display:none
+      // collapses this wrapper to 0×0, which would make zoomFactor 0 and
+      // every measurement 0/0 = NaN. Bail out rather than set a NaN width;
+      // resize/font-ready will re-measure correctly once it's visible again.
+      const wrapperHeight = wrapper.getBoundingClientRect().height;
+      if (!wrapperHeight) return;
+
+      const zoomFactor = wrapperHeight / lineHeight;
       const measured = wordRefs.current.map((el) =>
         el ? el.getBoundingClientRect().width / zoomFactor : 0,
       );

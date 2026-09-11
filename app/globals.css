@@ -11,6 +11,7 @@
 
   --animate-ticker-slide-in: ticker-slide-in 0.6s ease-out forwards;
   --animate-ticker-slide-out: ticker-slide-out 0.6s ease-out forwards;
+  --animate-reveal: reveal 1.7s cubic-bezier(1, 0, 0.3, 0.9) forwards;
 }
 
 /*
@@ -45,6 +46,30 @@
   100% {
     opacity: 0;
     transform: translateY(100%);
+  }
+}
+
+/*
+ * Mask reveal (mobile hero strapline, <=768px). Ported from
+ * codepen.io/fixer/pen/WNbOXLW: each line sits in its own overflow-hidden
+ * box and slides up from translateY(100%) to 0, using the pen's own
+ * timing (1.7s, cubic-bezier(1, 0, 0.3, 0.9)). The resting translateY on
+ * the element itself (not just the keyframe's 0%) matters — lines later
+ * in the cascade sit through an animation-delay before their turn, and
+ * without a static transform matching the keyframe's start, they'd be
+ * visible at rest during that wait instead of staying masked below the
+ * fold. Delay itself is applied per-element in page.tsx rather than via
+ * nth-child (grouped in pairs — "Your"+the word reveal together, then
+ * the next pair, cascading top to bottom — not a flat per-line stagger),
+ * since the six lines here aren't siblings in the same fixed grid the
+ * original pen used.
+ */
+@keyframes reveal {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
   }
 }
 
